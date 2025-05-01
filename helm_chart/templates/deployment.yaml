@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Values.deployment.name}}
+  labels:
+    app: {{.Values.deployment.labels}}
+spec:
+  replicas: {{.Values.deployment.replicas}}
+  selector:
+    matchLabels:
+      app: {{.Values.deployment.labels}}
+  template:
+    metadata:
+      labels:
+        app: {{.Values.deployment.labels}}
+    spec:
+      containers:
+      - name: {{.Values.deployment.containerName}}
+        image: {{.Values.deployment.image}}
+        ports:
+        - containerPort: {{.Values.deployment.containerPort}}
+        resources:
+          requests:
+            memory: {{.Values.deployment.minMemory}}
+            cpu: {{.Values.deployment.minCPU}}
+          limits:
+            memory: {{.Values.deployment.maxMemory}}
+            cpu: {{.Values.deployment.maxCPU}}
+        env:
+        - name: RDS_ENDPOINT
+          valueFrom:
+            secretKeyRef:
+              name: mysecrets
+              key: RDS_ENDPOINT
+
+        - name: RDS_USER
+          valueFrom:
+            secretKeyRef:
+              name: mysecrets
+              key: RDS_USER
+
+        - name: RDS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysecrets
+              key: RDS_PASSWORD
+
+        envFrom:
+        - configMapRef:
+           name: myconfigs
